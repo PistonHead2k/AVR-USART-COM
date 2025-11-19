@@ -1,0 +1,114 @@
+//PistonHead2k
+#ifndef FrequencyCounter
+#define InterruptTimer
+
+namespace FrequencyCounter
+{
+
+#include <avr/interrupt.h>
+
+//PORTB
+#define LED_BUILTIN 5
+#define PCINT0_PIN 0
+
+
+//Timer
+int Frequency;
+int Buf;
+const float TimeConstant = float(F_CPU) / 65535.0f / 8.0f; //F_CPU / TimerOverflow[65535] / TimerPrescaler[8] = 30.518043793392845f
+double ProgramTime; //Note: Overflows in a bizillion years
+
+//For Period Detection
+
+
+ISR (TIMER1_OVF_vect) //Gets Called Every 0.0327675 seconds
+{
+    Frequency = Buf * 256 + TCNT0;
+    Frequency *= TimeConstant; //Precision Factor
+    Buf = 0;
+
+    ProgramTime += 1.0f / TimeConstant; 
+
+    TCNT0 = 0x00;
+  // _TCNT0 = 0x00;
+    //PORTB ^= (1 << LED_BUILTIN);
+    TCNT1 = 0x0000;
+
+}
+
+//Crank Signal Overflow Counter
+ISR (TIMER0_OVF_vect)
+{
+    Buf++; //255 Rising Edges
+}
+
+//Decodes The Notch on the Tone Wheel
+uint8_t _TCNT0 = 0x00;
+double LastTick;
+double WavePeriod;
+
+void DecodePosition()
+{
+    //If Counter Increases
+    if (TCNT0 > _TCNT0) 
+    {
+        WavePeriod = ProgramTime - LastTick;
+
+        LastTick = ProgramTime;
+    }
+
+    _TCNT0 = TCNT0;
+}
+
+void ConfigTimer()
+{
+    //Timer Overflow Flag to 0 -> Has a max value of 65535
+    //Formula: T[s] = 65535 - (F_CPU/Prescaler * Ftarget)
+    TCNT1 = 0x0000;
+
+    //Timer Control Register 1B -> Sets Prescaler to 1024
+    //Clk/8;
+    TCCR1B = (1 << CS11);
+
+    TCCR1A = 0b00000000; //(0x00)
+
+    //Timer Control Register 1 -> Timer Overflow Interrupt Enabled and Input Capure Interrupt
+    TIMSK1 = (1 << TOIE1);
+
+    //Enables CPU to be Interrupted
+    sei();
+}
+
+void ConfigureCounter()
+{
+    //Timer Overflow Flag to 0 -> Has a max value of 65535
+    //Formula: T[s] = 65535 - (F_CPU/Prescaler * Ftarget)
+    TCNT0 = 0x00;
+
+    //Timer Control Register
+    //Setup to use PD4 as clock input (T0) (Rising Edge)
+    TCCR0B = (1 << CS00) | (1 << CS01) | (1 << CS02);
+
+    TCCR0A = 0b00000000; //(0x00)
+
+    //Timer Control Register 1 -> Timer Overflow Interrupt Enabled
+    TIMSK0 = (1 << TOIE1);
+
+    //Enables CPU to be Interrupted
+    sei();
+}
+
+
+//EXTERN
+void Init()
+{
+    //Sets PORTB 
+    DDRB |= (0 << PCINT0_PIN) | (1 << LED_BUILTIN); //means 0b00100000
+
+    ConfigTimer();
+    ConfigureCounter();
+}
+
+}
+
+#endif

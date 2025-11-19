@@ -1,0 +1,3 @@
+Automotive Grade PSU: https://www.analog.com/en/resources/analog-dialogue/articles/comprehensive-power-supply-system-designs-for-harsh-automotive-environments.html
+Protecting AVR Inputs: https://scienceprog.com/using-current-limiting-resistors-on-avr-io-pins/
+UBRR Setup: https://onlinedocs.microchip.com/pr/GUID-ED37252C-1496-4275-BAEF-5152050ED2C2-en-US-2/index.html?GUID-65A53416-8DE2-468E-99CF-09F480AEF734
