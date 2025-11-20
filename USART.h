@@ -57,15 +57,26 @@ uint8_t HaltCPUUntilPollByte()
 }
 
 /* Polls ASCII Char */
-uint8_t PollByte()
+uint8_t PollChar()
 {
-    #define ASCII_NUL
+    #define ASCII_NUL 0
     // Halts Execution for byte to be received
     if(UCSR0A & (1 << RXC0))
     {
         return UDR0;
     }
     else return ASCII_NUL;
+}
+
+/* Polls Literal Byte. needs the pointer */
+/* because ASCII_NUL = 0 wich can be */
+/* mistook for a literal 0 */
+void PollByte(volatile uint8_t* Byte)
+{
+    if(UCSR0A & (1 << RXC0))
+    {
+        *Byte = (uint8_t)UDR0;
+    }
 }
 
 #if defined(DEBUG)

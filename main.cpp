@@ -121,7 +121,10 @@ int main(void)
         //P.B1 = !MotorOpen;
         P.B2 = !MotorClose;
 
-        if (USART::PollByte() == 'a')
+        uint8_t byteBuf;
+        USART::PollByte(&byteBuf);
+        USART::Debug::SendString(ToString((uint32_t)byteBuf));
+        if (byteBuf)
         {
             P.B1 TOGGLE;
         }
