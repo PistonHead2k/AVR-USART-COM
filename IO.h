@@ -247,8 +247,6 @@ struct Pulse
         bit Out = OFF;
         
         Out = (!ActualF & LastCycle); //If i want to out 2 cycles instead of 1: Out = Actual ^ LastCycle;
-     
-        if (Out) USART::Debug::SendString("ON");
 
         return Out;
     }
@@ -262,8 +260,6 @@ struct Pulse
         bit Out = OFF;
         
         Out = (!ActualR & LastCycle); //If i want to out 2 cycles instead of 1: Out = Actual ^ LastCycle;
-     
-        if (Out) USART::Debug::SendString("ON");
 
         return Out;
     }

@@ -47,13 +47,25 @@ void SendByte(uint8_t byte)
 }
 
 /* Halts Execution Until it Receives a Byte */
-uint8_t PollByte()
+uint8_t HaltCPUUntilPollByte()
 {
     // Halts Execution for byte to be received
     while(!(UCSR0A&(1 << RXC0))){asm("");};
 
     // Return received data
     return UDR0;
+}
+
+/* Polls ASCII Char */
+uint8_t PollByte()
+{
+    #define ASCII_NUL
+    // Halts Execution for byte to be received
+    if(UCSR0A & (1 << RXC0))
+    {
+        return UDR0;
+    }
+    else return ASCII_NUL;
 }
 
 #if defined(DEBUG)

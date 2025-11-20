@@ -79,19 +79,19 @@ $ioport.Open()
 # To read data continuously (example)
 while($true) 
 {
-    try 
-    {
-        $data = $ioport.ReadLine()
-        Write-Host $data
-    } 
-    catch [System.TimeoutException] 
-    {
-        # Handle timeout if no data is received
-        Write-Host "System.TimeoutException"
-    }
+#    try 
+#    {
+#        $data = $ioport.ReadLine()
+#        Write-Host $data
+#    } 
+#    catch [System.TimeoutException] 
+#    {
+#        # Handle timeout if no data is received
+#        Write-Host "System.TimeoutException"
+#    }
     
-    if ([console]::KeyAvailable)
-    {
+#    if ([console]::KeyAvailable)
+#    {
         $key = [System.Console]::ReadKey($true) #$true means the key pressed wont appear on console before Send:
         if ($key.Key -eq "Escape")
         {exit}
@@ -103,5 +103,5 @@ while($true)
         }
         else
         {exit}
-    }
+#    }
 }

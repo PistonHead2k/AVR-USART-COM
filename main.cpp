@@ -28,7 +28,8 @@ IO::Debounce Debounce1, Debounce2, Debounce3;
 /* Timer Subroutine */
 void TS1(void)
 {
-    USART::Debug::SendString(ToStringBinary(PIND));
+    P.B5 TOGGLE;
+    USART::SendByte(*"a");
 }
 
 //Pin 2 (PCINT18 capture input interrupt)
@@ -61,6 +62,8 @@ int main(void)
     Bit::Out(&DDRB, 2, OUTPUT);
     Bit::Out(&DDRB, 3, OUTPUT);
     Bit::Out(&DDRB, 4, OUTPUT);
+
+    Bit::Out(&DDRB, 5, OUTPUT); //Led Builtin
 
     //Sets PORTD2-4 as input w pullup
     Bit::Out(&DDRD, 2, INPUT);
@@ -95,8 +98,7 @@ int main(void)
         /* Endstop Close Pulse Input */
         bit EndCloseInput = Debounce3.InputR(~PCIN2, 4);
 
-        if (EndOpenInput) USART::Debug::SendString("OPEN ENDSTOP");
-        if (EndCloseInput) USART::Debug::SendString("CLOSE ENDSTOP");
+
 
         bit MotorOpen;
         bit MotorClose;
@@ -116,8 +118,15 @@ int main(void)
         MotorOpen = Dir & Start;
         MotorClose = !Dir & Start;
         
-        P.B1 = !MotorOpen;
+        //P.B1 = !MotorOpen;
         P.B2 = !MotorClose;
+
+        if (USART::PollByte() == 'a')
+        {
+            P.B1 TOGGLE;
+        }
+
+        
 
 
         //Timer::DeltaT(Timer::Micros()); //Calculates Loop DT
