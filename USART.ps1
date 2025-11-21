@@ -136,7 +136,6 @@ while($true)
             {
                 $ioport.Encoding = [System.Text.Encoding]::GetEncoding(1252)
                 $ioport.Write([char]$byteValue)
-                Write-Host Please Write a Byte
             }
             else 
             {

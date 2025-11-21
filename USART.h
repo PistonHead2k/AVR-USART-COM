@@ -29,8 +29,8 @@ void Init(uint32_t BAUDRATE)
 
     
 
-    // Enable Transmission and Reception
-    UCSR0B |= (1 << RXEN0)|(1 << TXEN0);
+    // Enable Transmission and Reception and USART interrupt
+    UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
 
     // Double Speed Operation
     UCSR0A = U2X0;
@@ -71,7 +71,7 @@ uint8_t PollChar()
 /* Polls Literal Byte. needs the pointer */
 /* because ASCII_NUL = 0 wich can be */
 /* mistook for a literal 0 */
-void PollByte(volatile uint8_t* Byte)
+inline void PollByte(volatile uint8_t* Byte)
 {
     if(UCSR0A & (1 << RXC0))
     {

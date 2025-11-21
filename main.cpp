@@ -41,6 +41,24 @@ ISR (PCINT2_vect)
     PCIN2 = PIND;
 }
 
+int i;
+//USART0 current byte
+uint8_t byteBuf = 0x0;
+//USART0 last byte
+uint8_t lbyteBuf = 0xFF;
+ISR (USART_RX_vect)
+{
+    i++;
+    //Here Because it clears the ISR, if you read elsewhere it will keep firing unitl the register is read
+    USART::PollByte(&byteBuf);
+    const uint8_t FirsByte = 0xFF;
+    const uint8_t SecondByte = 0x00;
+    if (byteBuf == SecondByte && lbyteBuf == FirsByte) USART::Debug::SendString("TRACE START");
+    lbyteBuf = byteBuf;
+
+}
+
+
 /* Executes Every 0.001024 seconds */
 
 void FixedLoop(void)
@@ -50,7 +68,7 @@ void FixedLoop(void)
 
 int main(void)
 {   
-    sei();
+    cli();
 
     USART::Init(250000); //USART Init
     
@@ -84,6 +102,8 @@ int main(void)
     Bit::Set(&PCMSK2, PCINT18);
     Bit::Set(&PCMSK2, PCINT19);
     Bit::Set(&PCMSK2, PCINT20);
+
+    sei();
 
     while(true)
     {
@@ -123,12 +143,12 @@ int main(void)
         //P.B1 = !MotorOpen;
         P.B2 = !MotorClose;
 
-        uint8_t byteBuf;
-        USART::PollByte(&byteBuf);
+ 
 
         if (TS1r) USART::Debug::SendString(ToString((uint32_t)byteBuf));
-
-        if (byteBuf == 'a')
+        if (TS1r) USART::Debug::SendString(ToString((uint32_t)i));
+        TS1r = OFF;
+        if (byteBuf == 0xFF)
         {
             P.B1 TOGGLE;
         }
