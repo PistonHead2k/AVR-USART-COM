@@ -25,11 +25,13 @@
 IO::Debounce Debounce1, Debounce2, Debounce3;
 
 
+flag TS1r;
 /* Timer Subroutine */
 void TS1(void)
 {
     P.B5 TOGGLE;
     USART::SendByte(*"a");
+    TS1r = ON;
 }
 
 //Pin 2 (PCINT18 capture input interrupt)
@@ -123,8 +125,11 @@ int main(void)
 
         uint8_t byteBuf;
         USART::PollByte(&byteBuf);
-        USART::Debug::SendString(ToString((uint32_t)byteBuf));
-        if (byteBuf)
+
+        if (TS1r) USART::Debug::SendString(ToString((uint32_t)byteBuf));
+        TS1r = OFF;
+
+        if (byteBuf == 'a')
         {
             P.B1 TOGGLE;
         }

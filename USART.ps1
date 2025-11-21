@@ -14,10 +14,17 @@ param
 Write-Host "USART RS232 powershell script by Mateo Proruk"
 
 
-if (!$Mode)
-{
-    Write-Host "Please Specify Mode (-Mode Send, Receive)"
+switch ($Mode)
+{ 
+    "SendByte" {}
+    "SendChar" {}
+    "SendString" {}
+    "Receive" {}
+    default 
+    {
+    Write-Host "Please Specify Mode (-Mode SendByte, SendChar, SendString, Receive)"
     exit
+    }
 }
 
 if (!$Port)
@@ -73,6 +80,7 @@ switch ($Stop)
     }
 }
 
+
 $ioport = New-Object System.IO.Ports.SerialPort $Port, $Baud, $Parity, $Data, $Stop
 $ioport.Open()
 
@@ -93,15 +101,41 @@ while($true)
     if ([console]::KeyAvailable)
     {
         $key = [System.Console]::ReadKey($true) #$true means the key pressed wont appear on console before Send:
-        if ($key.Key -eq "Escape")
-        {exit}
-
-        if ($Mode -eq "Send")
+        if ($key.Key -eq "Escape" -or $Mode -eq "Receive")
         {
-            $ShellLine = Read-Host "Send"
+            $ioport.Close()
+            exit
+        }
+
+        #Halts Shell Input and stores the string in $ShellLine
+        $ShellLine = Read-Host "Send"
+
+        #Sends The Whole String as Is
+        if ($Mode -eq "SendString")
+        {
             $ioport.WriteLine($ShellLine)
         }
-        else
-        {exit}
+
+        #Sends One Character at a time
+        if ($Mode -eq "SendChar")
+        {   
+            #Removes The Line Feed/Null Termination Char
+            for ($i = 0 ; $i -lt $ShellLine.length; $i++)
+            {
+                $ioport.Write($ShellLine[$i])
+            }
+            
+        }
+
+        if ($Mode -eq "SendByte")
+        {     
+            $byteValue = $null   # Variable to store the converted byte
+            $isSuccess = [Byte]::TryParse($ShellLine, [ref]$byteValue)
+
+            $ioport.Encoding = [System.Text.Encoding]::GetEncoding(1252)
+            $ioport.Write([char]$byteValue)
+            Write-Host Please Write a Byte
+        
+        }
     }
 }
