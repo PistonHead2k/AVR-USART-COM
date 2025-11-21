@@ -130,12 +130,18 @@ while($true)
         if ($Mode -eq "SendByte")
         {     
             $byteValue = $null   # Variable to store the converted byte
-            $isSuccess = [Byte]::TryParse($ShellLine, [ref]$byteValue)
+            $try = [Byte]::TryParse($ShellLine, [ref]$byteValue)
 
-            $ioport.Encoding = [System.Text.Encoding]::GetEncoding(1252)
-            $ioport.Write([char]$byteValue)
-            Write-Host Please Write a Byte
-        
+            if ($try)
+            {
+                $ioport.Encoding = [System.Text.Encoding]::GetEncoding(1252)
+                $ioport.Write([char]$byteValue)
+                Write-Host Please Write a Byte
+            }
+            else 
+            {
+                Write-Host Please Send 0 - 255 Decimal Value 
+            }  
         }
     }
 }

@@ -127,7 +127,6 @@ int main(void)
         USART::PollByte(&byteBuf);
 
         if (TS1r) USART::Debug::SendString(ToString((uint32_t)byteBuf));
-        TS1r = OFF;
 
         if (byteBuf == 'a')
         {
