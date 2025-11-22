@@ -12,7 +12,7 @@ namespace USART
 #include <math.h>
 
 /* Initializes USART0 as Serial Transmission Port */
-void Init(uint32_t BAUDRATE)
+inline void Init(uint32_t BAUDRATE)
 {
     // Baudrate Prescalar (see Page 146 Table 19-1)
     uint8_t UBRR = (((F_CPU / (BAUDRATE * 16UL))) - 1);
@@ -22,22 +22,22 @@ void Init(uint32_t BAUDRATE)
     UBRR0L = (uint8_t)UBRR;
 
     // Set Frame Format to 8 Data Bits, no Parity, 1 Stop Bit
-    //UCSR0C |= (1 << UCSZ01)|(1 << UCSZ00);
+    UCSR0C |= (1 << UCSZ01)|(1 << UCSZ00);
 
     /* Set frame format: 8data, 2stop bit, Odd Parity */
-    UCSR0C = (1 << USBS0) | ( 1 << UCSZ00) | ( 1 << UCSZ01) | ( 1 << UPM00) | ( 1 << UPM01);
+    //UCSR0C = (1 << USBS0) | ( 1 << UCSZ00) | ( 1 << UCSZ01) | ( 1 << UPM00) | ( 1 << UPM01);
 
     
 
-    // Enable Transmission and Reception and USART interrupt
-    UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+    // Enable Transmission and Reception and USART TX and RX interrupt
+    UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << TXCIE0) | (1 << RXCIE0);
 
     // Double Speed Operation
     UCSR0A = U2X0;
 }
 
 /* Sends a Byte */
-void SendByte(uint8_t byte)
+inline void HaltSendByte(uint8_t byte)
 {
     // Halts Execution While Previous Byte is Completed
     while(!(UCSR0A&(1 << UDRE0))){asm("");};
@@ -47,7 +47,7 @@ void SendByte(uint8_t byte)
 }
 
 /* Halts Execution Until it Receives a Byte */
-uint8_t HaltCPUUntilPollByte()
+inline uint8_t HaltCPUUntilPollByte()
 {
     // Halts Execution for byte to be received
     while(!(UCSR0A&(1 << RXC0))){asm("");};
@@ -57,7 +57,7 @@ uint8_t HaltCPUUntilPollByte()
 }
 
 /* Polls ASCII Char */
-uint8_t PollChar()
+inline uint8_t PollChar()
 {
     #define ASCII_NUL 0
     // Halts Execution for byte to be received
